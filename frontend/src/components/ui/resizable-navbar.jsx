@@ -1,4 +1,4 @@
-"use client";;
+
 import { cn } from "@/lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import {
@@ -76,11 +76,7 @@ export const NavBody = ({
   );
 };
 
-export const NavItems = ({
-  items,
-  className,
-  onItemClick
-}) => {
+export const NavItems = ({ items, className, onItemClick }) => {
   const [hovered, setHovered] = useState(null);
 
   return (
@@ -89,21 +85,23 @@ export const NavItems = ({
       className={cn(
         "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2",
         className
-      )}>
+      )}
+    >
       {items.map((item, idx) => (
-        <a
-          onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+        <div
           key={`link-${idx}`}
-          href={item.link}>
+          onClick={() => onItemClick(item)}
+          className="relative cursor-pointer px-4 py-2 text-neutral-600 dark:text-neutral-300"
+          onMouseEnter={() => setHovered(idx)}
+        >
           {hovered === idx && (
             <motion.div
               layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800" />
+              className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-200"
+            />
           )}
           <span className="relative z-20">{item.name}</span>
-        </a>
+        </div>
       ))}
     </motion.div>
   );
@@ -195,11 +193,11 @@ export const NavbarLogo = () => {
       href="#"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black">
       <img
-        src="https://assets.aceternity.com/logo-dark.png"
+        src="code_bee.png"
         alt="logo"
-        width={30}
-        height={30} />
-      <span className="font-medium text-black dark:text-white">Startup</span>
+        width={40}
+        height={40} />
+      <span className="font-medium text-black dark:text-white">CodeBee</span>
     </a>
   );
 };
