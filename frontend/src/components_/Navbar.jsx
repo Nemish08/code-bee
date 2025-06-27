@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import CustomUserMenu from './UserButton';
 
 export function Navbar_() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Effect to handle scroll detection
   useEffect(() => {
     const handleScroll = () => {
-      // Set isScrolled to true if user scrolls down more than 10px
       if (window.scrollY > 10) {
         setIsScrolled(true);
       } else {
@@ -17,7 +17,6 @@ export function Navbar_() {
       }
     };
     window.addEventListener('scroll', handleScroll);
-    // Cleanup function to remove the event listener
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -26,15 +25,12 @@ export function Navbar_() {
     { name: "Problems" },
   ];
 
-  // Navigation handler
   const handleClick = (item) => {
-    // A special case for the logo click to go to the home page
     const path = item.name ? String(item.name).toLowerCase() : '/';
     navigate(path);
-    setIsMobileMenuOpen(false); // Close mobile menu on navigation
+    setIsMobileMenuOpen(false);
   };
-  
-  // Base64 encoded logo from the provided crop
+
   const logoSrc = "code_bee.png";
 
   return (
@@ -45,7 +41,7 @@ export function Navbar_() {
           mx-auto
           transform
           transition-all duration-500 ease-in-out
-          flex  flex-col justify-center items-center
+          flex flex-col justify-center items-center
           ${isScrolled ? 'scale-[0.85] md:scale-75 -translate-y-2' : 'scale-100 translate-y-0'}
         `}
       >
@@ -79,14 +75,19 @@ export function Navbar_() {
             ))}
           </div>
 
-          {/* Right: Login (Desktop) */}
+          {/* Right: Login or User icon (Desktop) */}
           <div className="hidden md:block">
-            <button
-              onClick={() => handleClick({name: 'login'})}
-              className="text-black font-bold hover:opacity-75 transition-opacity duration-300 text-base"
-            >
-              Login
-            </button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-black font-bold hover:opacity-75 transition-opacity duration-300 text-base">
+                  Login
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+            <CustomUserMenu/>
+              {/* <UserButton afterSignOutUrl="/" /> */}
+            </SignedIn>
           </div>
 
           {/* Right: Mobile Menu Toggle Button */}
@@ -100,8 +101,7 @@ export function Navbar_() {
         </nav>
       </div>
 
-      {/* --- Mobile Menu --- */}
-      {/* Overlay */}
+      {/* --- Mobile Menu Overlay --- */}
       <div
         className={`
             fixed inset-0 bg-black/30 z-40 md:hidden
@@ -110,7 +110,8 @@ export function Navbar_() {
         `}
         onClick={() => setIsMobileMenuOpen(false)}
       />
-      {/* Panel */}
+
+      {/* --- Mobile Menu Panel --- */}
       <div
         className={`
             fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white shadow-xl z-50
@@ -143,12 +144,21 @@ export function Navbar_() {
                 {item.name}
               </button>
             ))}
-            <button
-              onClick={() => handleClick({name: 'login'})}
-              className="w-full text-left py-3 px-3 text-lg text-black hover:bg-gray-100 rounded-md font-bold"
-            >
-              Login
-            </button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button
+                  className="w-full text-left py-3 px-3 text-lg text-black hover:bg-gray-100 rounded-md font-bold"
+                >
+                  Login
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <div className="px-3 py-2">
+                <CustomUserMenu/>
+                {/* <UserButton afterSignOutUrl="/" /> */}
+              </div>
+            </SignedIn>
           </div>
         </div>
       </div>

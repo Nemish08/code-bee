@@ -6,11 +6,12 @@ import { RiEraserFill } from 'react-icons/ri';
 import { BsLightningChargeFill, BsGraphUp, BsListUl, BsCollectionPlay } from 'react-icons/bs';
 import { IoSparkles } from 'react-icons/io5';
 import { FiClock, FiTrendingUp } from 'react-icons/fi';
+import { useUser, useClerk } from '@clerk/clerk-react';
 
 // Main Dashboard Component
 const UserProfileDashboard = () => {
   return (
-    <div className="bg-gray-50 h-full w-[90%] m-auto  pt-20 sm:p-6 lg:p-8 font-sans text-gray-900">
+    <div className=" h-full w-[90%] m-auto  mt-20 sm:p-6 lg:p-8 font-sans text-gray-900">
       <div className="max-w-screen-xl mx-auto">
         <ProfileHeader />
         <StatsSection />
@@ -29,12 +30,13 @@ const UserProfileDashboard = () => {
 // Sub-components for each section
 
 const ProfileHeader = () => {
+  const {user} = useUser()
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center">
         <div className="relative">
-          <div className="w-20 h-20 bg-orange-400 rounded-full flex items-center justify-center text-white text-4xl font-bold">
-            U
+          <div className="w-20 h-20 rounded-full overflow-hidden">
+            <img className=' object-contain w-[100%] h-[100%]' src={user.imageUrl}/>
           </div>
           <div className="absolute -top-1 -right-1 bg-orange-500 rounded-full p-2 border-4 border-white">
             <BsLightningChargeFill className="text-white text-base" />
@@ -44,7 +46,7 @@ const ProfileHeader = () => {
           <h1 className="text-2xl font-bold">user Name</h1>
           <p className="text-gray-500 flex items-center mt-1">
             <FaRegUser className="mr-2" />
-            user__@gmail.com
+            {user.primaryEmailAddress.emailAddress}
           </p>
         </div>
       </div>
