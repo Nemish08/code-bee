@@ -1,0 +1,43 @@
+{
+  "check-even-odd": {
+    "title": "Check Even or Odd",
+    "difficulty": "Easy",
+    "description": "Given an integer n, determine whether it is even or odd. Return 'Even' if the number is even, otherwise return 'Odd'.",
+    "examples": [
+      {
+        "input": "4",
+        "output": "Even",
+        "explanation": "4 is divisible by 2, so it is even."
+      },
+      {
+        "input": "7",
+        "output": "Odd",
+        "explanation": "7 is not divisible by 2."
+      }
+    ],
+    "starterCode": {
+      "javascript": "const readline = require('readline');\n\nfunction solve(n) {\n  // Write your code here\n  // Return 'Even' or 'Odd'\n  \n}\n\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line) => {\n    const n = parseInt(line, 10);\n    console.log(solve(n));\n    rl.close();\n});",
+      "python": "def solve(n):\n  # Write your code here\n  # Return 'Even' or 'Odd'\n  \n\nif __name__ == '__main__':\n  n = int(input())\n  print(solve(n))",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static String solve(int n) {\n        // Write your code here\n        // Return \"Even\" or \"Odd\"\n        \n    }\n\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        System.out.println(solve(n));\n        sc.close();\n    }\n}",
+      "cpp": "#include <iostream>\n#include <string>\n\nstd::string solve(int n) {\n    // Write your code here\n    // Return \"Even\" or \"Odd\"\n    \n}\n\nint main() {\n    int n;\n    std::cin >> n;\n    std::cout << solve(n) << std::endl;\n    return 0;\n}"
+    }
+  },
+  "sum-of-two-numbers": {
+    "title": "Sum of Two Numbers",
+    "difficulty": "Easy",
+    "description": "Given two integers, a and b, return their sum.",
+    "examples": [
+      {
+        "input": "a = 5, b = 3",
+        "output": "8",
+        "explanation": "5 + 3 = 8."
+      }
+    ],
+    "starterCode": {
+      "javascript": "function solve(a, b) {\n  // Write your code here\n  return a + b;\n}",
+      "python": "def solve(a, b):\n  # Write your code here\n  return a + b",
+      "java": "public class Main {\n    public static int solve(int a, int b) {\n        // Write your code here\n        return a + b;\n    }\n}",
+      "cpp": "int solve(int a, int b) {\n    // Write your code here\n    return a + b;\n}"
+    }
+  }
+}

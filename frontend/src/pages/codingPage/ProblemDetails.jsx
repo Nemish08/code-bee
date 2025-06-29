@@ -1,9 +1,8 @@
-// src/components/ProblemDetails.jsx
 import React, { useState } from 'react';
 
-const ProblemDetails = () => {
+const ProblemDetails = ({ problem }) => {
   const [activeTab, setActiveTab] = useState('Description');
-  const tabs = ['Description', 'Submissions', 'Discussion', 'Hints'];
+  const tabs = ['Description', 'Submissions', 'Discussion'];
 
   return (
     <div className="bg-dark-panel h-full rounded-lg flex flex-col">
@@ -29,34 +28,28 @@ const ProblemDetails = () => {
         {activeTab === 'Description' && (
           <div>
             <div className="flex items-center gap-4 mb-4">
-              <span className="bg-secondary text-white text-xs font-bold px-2.5 py-1 rounded-full">EASY</span>
-              <span className="text-text-secondary text-sm">20 Submissions</span>
-              <span className="text-text-secondary text-sm">0% Success</span>
+              <span className={`text-white text-xs font-bold px-2.5 py-1 rounded-full ${
+                  problem.difficulty === 'Easy' ? 'bg-green-500' : 'bg-yellow-500'
+                }`}>{problem.difficulty.toUpperCase()}</span>
             </div>
+            
+            <h1 className="text-xl font-bold text-text-primary mb-4">{problem.title}</h1>
 
-            <p className="text-text-primary mb-6">
-              Given an integer n, determine whether it is even or odd. Print 'Even' if the number is even, otherwise print 'Odd'.
-            </p>
+            <p className="text-text-primary mb-6" dangerouslySetInnerHTML={{ __html: problem.description }} />
 
             <h2 className="text-lg font-semibold text-text-primary mb-3">Examples</h2>
 
-            {/* Example 1 */}
-            <div className="bg-dark-code-editor border border-dark-border p-4 rounded-md mb-4">
-              <p className="text-sm"><strong className="text-text-accent">Input:</strong> 4</p>
-              <p className="text-sm mt-2"><strong className="text-green-400">Output:</strong> Even</p>
-              <p className="text-sm mt-2"><strong className="text-purple-400">Explanation:</strong> 4 is divisible by 2, so it is even.</p>
-            </div>
-
-            {/* Example 2 */}
-            <div className="bg-dark-code-editor border border-dark-border p-4 rounded-md">
-              <p className="text-sm"><strong className="text-text-accent">Input:</strong> 7</p>
-              <p className="text-sm mt-2"><strong className="text-green-400">Output:</strong> Odd</p>
-            </div>
+            {problem.examples.map((example, index) => (
+              <div key={index} className="bg-dark-code-editor border border-dark-border p-4 rounded-md mb-4">
+                <p className="font-mono text-sm"><strong className="text-text-accent">Input:</strong> {example.input}</p>
+                <p className="font-mono text-sm mt-2"><strong className="text-green-400">Output:</strong> {example.output}</p>
+                {example.explanation && <p className="text-sm mt-2"><strong className="text-purple-400">Explanation:</strong> {example.explanation}</p>}
+              </div>
+            ))}
           </div>
         )}
-         {activeTab === 'Submissions' && <div className="text-center p-8">No submissions yet.</div>}
-         {activeTab === 'Discussion' && <div className="text-center p-8">Discussion forum is empty.</div>}
-         {activeTab === 'Hints' && <div className="text-center p-8">No hints available for this problem.</div>}
+         {activeTab === 'Submissions' && <div className="text-center p-8 text-text-secondary">No submissions yet.</div>}
+         {activeTab === 'Discussion' && <div className="text-center p-8 text-text-secondary">Discussion forum is empty.</div>}
       </div>
     </div>
   );

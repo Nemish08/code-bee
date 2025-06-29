@@ -21,6 +21,8 @@ const ProtectedRoute = ({ children }) => {
 
 
 function App() {
+
+
   return (
 
     <>
@@ -32,7 +34,7 @@ function App() {
         <Route path="/home" element={<LandingPage />} />
         
         <Route path="/problems" element={<ProtectedRoute><Page/></ProtectedRoute>} />
-        <Route path="/problems/:id" element={<ProtectedRoute><CodingPage/></ProtectedRoute>} />
+        <Route path="/problems/:problemId" element={<ProtectedRoute><CodingPage/></ProtectedRoute>} />
         <Route path="/user" element={<ProtectedRoute><UserProfileDashboard/></ProtectedRoute>}/>
 
       </Routes>

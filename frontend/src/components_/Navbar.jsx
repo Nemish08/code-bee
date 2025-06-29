@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
 import CustomUserMenu from './UserButton';
-
-export function Navbar_() {
+import syncUser from '../lib/uerSync';
+import { useAuth, useUser } from '@clerk/clerk-react';
+function Navbar_() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const { getToken } = useAuth();
+  const { user } = useUser();
+
+  useEffect(() => {
+    const sync = async () => {
+      if (user?.id) {
+        const token = await getToken();
+        if (token) await syncUser(token,user);
+      }
+    };
+    sync();
+  }, [user?.id]);
+
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navItems = [
-    { name: "Home" },
-    { name: "Problems" },
+    { name: 'Home' },
+    { name: 'Problems' },
   ];
 
   const handleClick = (item) => {
@@ -31,38 +41,23 @@ export function Navbar_() {
     setIsMobileMenuOpen(false);
   };
 
-  const logoSrc = "code_bee.png";
+  const logoSrc = 'code_bee.png';
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-center py-2 md:py-4">
       <div
-        className={`
-          w-[95%] md:w-[90%] lg:w-[85%] max-w-7xl
-          mx-auto
-          transform
-          transition-all duration-500 ease-in-out
-          flex flex-col justify-center items-center
-          ${isScrolled ? 'scale-[0.85] md:scale-75 -translate-y-2' : 'scale-100 translate-y-0'}
-        `}
+        className={`w-[95%] md:w-[90%] lg:w-[85%] max-w-7xl mx-auto transform transition-all duration-500 ease-in-out flex flex-col justify-center items-center ${isScrolled ? 'scale-[0.85] md:scale-75 -translate-y-2' : 'scale-100 translate-y-0'}`}
       >
         <nav
-          className={`
-            flex items-center justify-between
-            h-15 px-0 sm:px-8 rounded-xl 
-            transition-all duration-500 ease-in-out w-[90%]
-            ${isScrolled ? 'bg-white/80 backdrop-blur-xl shadow-2xl' : ' shadow-lg'}
-          `}
+          className={`flex items-center justify-between h-15 px-0 sm:px-8 rounded-xl transition-all duration-500 ease-in-out w-[90%] ${isScrolled ? 'bg-white/80 backdrop-blur-xl shadow-2xl' : 'shadow-lg'}`}
         >
-          {/* Left: Logo */}
+          {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleClick({})}>
-            <img 
-              src={logoSrc}
-              alt="CodeBee Logo" 
-              className="h-10 w-10 object-contain"/>
+            <img src="/code_bee.png" alt="CodeBee Logo" className="h-10 w-10 object-contain" />
             <span className="text-xl font-bold text-gray-800 hidden sm:inline">CodeBee</span>
           </div>
 
-          {/* Middle: Nav Links (Desktop) */}
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-10">
             {navItems.map((item) => (
               <button
@@ -75,55 +70,45 @@ export function Navbar_() {
             ))}
           </div>
 
-          {/* Right: Login or User icon (Desktop) */}
+          {/* Right: Desktop Auth */}
           <div className="hidden md:block">
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="text-black font-bold hover:opacity-75 transition-opacity duration-300 text-base">
+                <button className="text-black font-bold hover:opacity-75 transition-opacity duration-300 text-base cursor-pointer">
                   Login
                 </button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
-            <CustomUserMenu/>
-              {/* <UserButton afterSignOutUrl="/" /> */}
+              <CustomUserMenu />
             </SignedIn>
           </div>
 
-          {/* Right: Mobile Menu Toggle Button */}
+          {/* Mobile Toggle */}
           <div className="md:hidden">
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -mr-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </nav>
       </div>
 
-      {/* --- Mobile Menu Overlay --- */}
+      {/* Mobile Overlay */}
       <div
-        className={`
-            fixed inset-0 bg-black/30 z-40 md:hidden
-            transition-opacity duration-300 ease-in-out
-            ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-        `}
+        className={`fixed inset-0 bg-black/30 z-40 md:hidden transition-opacity duration-300 ease-in-out ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* --- Mobile Menu Panel --- */}
+      {/* Mobile Drawer */}
       <div
-        className={`
-            fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white shadow-xl z-50
-            transform transition-transform duration-300 ease-in-out md:hidden
-            ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
-        `}
+        className={`fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <div className="flex flex-col h-full">
-          {/* Mobile Menu Header */}
           <div className="flex justify-between items-center p-5 border-b">
             <div className="flex items-center gap-2" onClick={() => handleClick({})}>
-              <img src={logoSrc} alt="CodeBee Logo" className="h-8 w-8 object-contain"/>
+              <img src={logoSrc} alt="CodeBee Logo" className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-gray-800">CodeBee</span>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 -mr-2">
@@ -133,7 +118,7 @@ export function Navbar_() {
             </button>
           </div>
 
-          {/* Mobile Menu Links */}
+          {/* Mobile Nav */}
           <div className="flex flex-col p-5 space-y-2">
             {navItems.map((item) => (
               <button
@@ -146,17 +131,14 @@ export function Navbar_() {
             ))}
             <SignedOut>
               <SignInButton mode="modal">
-                <button
-                  className="w-full text-left py-3 px-3 text-lg text-black hover:bg-gray-100 rounded-md font-bold"
-                >
+                <button className="w-full text-left py-3 px-3 text-lg text-black hover:bg-gray-100 rounded-md font-bold">
                   Login
                 </button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
               <div className="px-3 py-2">
-                <CustomUserMenu/>
-                {/* <UserButton afterSignOutUrl="/" /> */}
+                <CustomUserMenu />
               </div>
             </SignedIn>
           </div>
