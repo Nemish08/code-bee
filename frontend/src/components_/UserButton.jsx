@@ -9,8 +9,14 @@ export default function CustomUserMenu() {
 
   const toggleTheme = () => {
     const html = document.documentElement;
-    const isDark = html.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    // Check if the dark class is already present
+    const isDark = html.classList.contains('dark');
+
+    // Update localStorage first
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+
+    // Then, toggle the class
+    html.classList.toggle('dark', !isDark);
   };
 
   // Close on outside click
@@ -24,6 +30,8 @@ export default function CustomUserMenu() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  if (!user) return null; // Defensive check for user object
+
   return (
     <div className="relative" ref={menuRef}>
       <img
@@ -33,7 +41,7 @@ export default function CustomUserMenu() {
         className="h-9 w-9 rounded-full cursor-pointer border border-gray-300"
       />
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 overflow-hidden border dark:border-gray-700">
           <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 font-medium border-b dark:border-gray-600">
             {user.fullName || user.emailAddresses[0]?.emailAddress}
           </div>

@@ -4,7 +4,12 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
 import CustomUserMenu from './UserButton';
 import syncUser from '../lib/uerSync';
 import { useAuth, useUser } from '@clerk/clerk-react';
+import {useHeader} from '../context/HeaderContext';
+
+
+
 function Navbar_() {
+  const { flag} = useHeader();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -33,6 +38,7 @@ function Navbar_() {
   const navItems = [
     { name: 'Home' },
     { name: 'Problems' },
+    {name:'Contest'}
   ];
 
   const handleClick = (item) => {
@@ -43,8 +49,9 @@ function Navbar_() {
 
   const logoSrc = 'code_bee.png';
 
-  return (
-    <header className="fixed top-0 left-0 w-full z-50 flex justify-center py-2 md:py-4">
+  return (<>
+    {flag && 
+    <header className="fixed top-0 left-0 w-full z-10 flex justify-center py-2 md:py-4">
       <div
         className={`w-[95%] md:w-[90%] lg:w-[85%] max-w-7xl mx-auto transform transition-all duration-500 ease-in-out flex flex-col justify-center items-center ${isScrolled ? 'scale-[0.85] md:scale-75 -translate-y-2' : 'scale-100 translate-y-0'}`}
       >
@@ -145,6 +152,8 @@ function Navbar_() {
         </div>
       </div>
     </header>
+    }
+    </>
   );
 }
 
