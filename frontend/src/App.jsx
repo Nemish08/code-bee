@@ -47,7 +47,7 @@ function App() {
         <Route path="/contest" element={<ProtectedRoute><Competitions/></ProtectedRoute>}/>
         <Route path="create-contest" element={<ProtectedRoute><CreateContest/></ProtectedRoute>}/>
         <Route path="/contest/:contestId" element={<ProtectedRoute><ContestLobby/></ProtectedRoute>}/>
-        <Route path="/contest/:contestId" element={<ProtectedRoute><ContestLobby/></ProtectedRoute>}/>
+        {/* <Route path="/contest/:contestId" element={<ProtectedRoute><ContestLobby/></ProtectedRoute>}/> */}
         <Route path="/contest/results/:contestId" element={<ProtectedRoute><ContestResultsPage/></ProtectedRoute>}/>
       </Routes>
     </>

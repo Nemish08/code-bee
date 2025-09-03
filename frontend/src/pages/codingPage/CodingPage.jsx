@@ -1,5 +1,3 @@
-// pages/codingPage/CodingPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -85,18 +83,21 @@ const ProctoredContestView = ({ problem, contest, contestProblems }) => {
                 className="absolute top-0 left-0 opacity-0 pointer-events-none"
             />
             <Header problemTitle={problem.title} />
-            {warningMessage && !isDisqualified && (<div className="w-[95%] max-w-screen-2xl mx-auto mt-2 p-3 bg-yellow-900/50 border border-yellow-400 text-yellow-300 rounded-lg text-center font-semibold">         {warningMessage} (Infractions: {infractionCount}/{MAX_INFRACTIONS})               </div>
-            )}
-            <main className="flex-grow flex w-full max-w-screen-full p-4 gap-4 overflow-hidden">           <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-1/4 min-w-[300px]' : 'w-0'}`}>                  <ContestSidebar contest={contest} problems={contestProblems} isOpen={isSidebarOpen} />
+            {warningMessage && !isDisqualified && (<div className="w-[95%] max-w-screen-2xl mx-auto mt-2 p-3 bg-yellow-900/50 border border-yellow-400 text-yellow-300 rounded-lg text-center font-semibold"> {warningMessage} (Infractions: {infractionCount}/{MAX_INFRACTIONS})</div>)}
+            <main className="flex-grow flex w-full max-w-screen-full p-4 gap-4 overflow-hidden">           
+            
+            <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-1/4 min-w-[300px]' : 'w-0'}`}>                  
+            <ContestSidebar contest={contest} problems={contestProblems} isOpen={isSidebarOpen} />
             </div>
                 <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="h-full relative">
-                        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="absolute top-2 left-2 z-20 p-2 bg-dark-panel/80 hover:bg-primary/50 rounded-full transition-colors">                           {isSidebarOpen ? <X className="text-white" size={20} /> : <Menu className="text-white" size={20} />}                </button>
+                        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="absolute top-2 left-2 z-20 p-2 bg-dark-panel/80 hover:bg-primary/50 rounded-full transition-colors">{isSidebarOpen ? <X className="text-white" size={20} /> : <Menu className="text-white" size={20} />}  </button>
                         <ProblemDetails problem={problem} mycode={mycode} setTestCode={setTestcode} />
                     </div>
-                    <div className="h-full">                        <CodeEditorSection problem={problem} mycode={mycode} setTestCode={setTestcode} />
-                    </div>
+                <div className="h-full">                        
+                    <CodeEditorSection problem={problem} mycode={mycode} setTestCode={setTestcode} />
                 </div>
+            </div>
             </main>
         </div>
     );

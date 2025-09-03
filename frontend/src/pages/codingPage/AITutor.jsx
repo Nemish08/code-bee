@@ -65,7 +65,7 @@ const AITutor = ({ problemId, problem }) => {
             setMessages(prev => [...prev, aiMessage]);
         } catch (err) {
             console.error(err);
-            setError('CodeBee is busy, please try again in a moment.');
+            setError(' please try again in a moment.');
             setMessages(prev => prev.slice(0, -1)); 
         } finally {
             setIsLoading(false);

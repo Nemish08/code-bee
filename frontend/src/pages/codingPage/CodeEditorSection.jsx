@@ -98,55 +98,7 @@ const CodeEditorSection = ({ problem, mycode, setTestCode }) => {
     }
   };
 
-
-  const onEditorLoad = (editor) => {
-    aceEditorRef.current = editor; // Store the editor instance
-
-    // --- The Magic: Disable Paste ---
-    editor.commands.addCommand({
-      name: 'disablePaste',
-      bindKey: { win: 'Ctrl-V', mac: 'Command-V' }, // The standard paste shortcuts
-      exec: () => {
-        // We can optionally alert the user or just do nothing silently.
-        // A silent block is less intrusive.
-        console.log("Paste event blocked.");
-        return false; // Returning false prevents the default action
-      },
-      readOnly: true // This command should work even in read-only mode if needed
-    });
-
-    // You can also disable copy and cut in the same way
-    editor.commands.addCommand({
-        name: 'disableCopy',
-        bindKey: { win: 'Ctrl-C', mac: 'Command-C' },
-        exec: () => false,
-    });
-
-    editor.commands.addCommand({
-        name: 'disableCut',
-        bindKey: { win: 'Ctrl-X', mac: 'Command-X' },
-        exec: () => false,
-    });
-
-    // Also block right-click paste from the context menu
-    editor.container.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        alert('Right-click is disabled during the test.');
-        return false;
-    }, true);
-  };
-
-
-  const onPaste = (pastedText) => {
-    // Pass the pasted text up to the context for handling
-    console.log(pastedText)
-    setCode(code)
-  //   if (handlePasteEvent) {
-  //     // Pass the pasted text up to the context for handling
-  //     handlePasteEvent(pastedText);
-  // }
-    // The default paste action will still proceed.
-  };
+ 
   const handleResetCode = () => {
     if (problem?.starterCode?.[language]) {
       const starterCode = problem.starterCode[language];
