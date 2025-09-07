@@ -4,6 +4,7 @@ export const updateProblemStatus = async (problemId, userId, code, language, isS
   if(!memory) memory = "0";
   if(!runtime) runtime = "0";
   const status = isSolved;
+  
   try {
     const body = { problemId, userId, code, language, isSolved, memory, runtime, status, contestId };
 

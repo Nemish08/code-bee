@@ -1,29 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { FiPlus, FiChevronRight } from 'react-icons/fi';
+import { FiPlus, FiChevronRight,FiUsers,FiClock } from 'react-icons/fi';
 
-// This is a reusable component to display a link to a finished contest's results page.
+
 const PastContestCard = ({ contest }) => (
     <Link to={`/contest/results/${contest.contestId}`} className="block bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
         <div className="flex justify-between items-center">
             <div>
                 <h4 className="font-bold text-lg">{contest.name}</h4>
-                <p className="text-sm text-gray-500">Completed on {new Date(contest.updatedAt).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-500">
+                    {new Date(contest.createdAt).toLocaleDateString()} • 
+                    {contest.status === 'finished' ? 'Completed' : contest.status}
+                </p>
             </div>
             <FiChevronRight className="text-gray-400"/>
+        </div>
+        <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+            <div className="flex items-center gap-1">
+                <FiUsers size={14} />
+                <span>{contest.participants?.length || 0} participants</span>
+            </div>
+            <div className="flex items-center gap-1">
+                <FiClock size={14} />
+                <span>{contest.duration} mins</span>
+            </div>
         </div>
     </Link>
 );
 
-
 const Competitions = () => {
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [finishedContests, setFinishedContests] = useState([]);
+  const [contestHistory, setContestHistory] = useState([]);
   const navigate = useNavigate();
   const { getToken } = useAuth();
 
-  // useEffect hook to fetch the user's finished contests from the backend when the component loads.
   useEffect(() => {
       const fetchFinished = async () => {
           try {
@@ -31,19 +43,32 @@ const Competitions = () => {
               const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contests/finished`, {
                   headers: { 'Authorization': `Bearer ${token}` }
               });
-              if (!res.ok) {
-                  throw new Error('Failed to fetch past contests');
-              }
+              if (!res.ok) throw new Error('Failed to fetch past contests');
               const data = await res.json();
               setFinishedContests(data);
           } catch(err) { 
               console.error(err);
-              // Optionally set an error state here to show in the UI
           }
       };
-      // Fetch data only if the getToken function is available.
+
+      const fetchContestHistory = async () => {
+          try {
+              const token = await getToken();
+              const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contests/history`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+              });
+              if (res.ok) {
+                  const data = await res.json();
+                  setContestHistory(data);
+              }
+          } catch(err) {
+              console.error('Failed to fetch contest history', err);
+          }
+      };
+
       if (getToken) {
         fetchFinished();
+        fetchContestHistory();
       }
   }, [getToken]);
 
@@ -70,11 +95,10 @@ const Competitions = () => {
         alert(`Error: ${err.message}`);
     }
   };
-
-  return (
+return (
     <div className="h-full w-[80%] m-auto mt-20 sm:p-6 lg:p-8 font-sans">
       <div className="max-w-screen-xl mx-auto">
-        {/* Header section with page title and action buttons */}
+        {/* Header section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900">Competitions</h1>
@@ -90,25 +114,36 @@ const Competitions = () => {
           </div>
         </div>
         
-        {/* UPDATED SECTION: Dynamically displays past contests */}
+        {/* Contest History */}
+        <div className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-800">Your Contest History</h2>
+            <div className="mt-4 space-y-4">
+                {contestHistory.length > 0 ? (
+                    contestHistory.map(c => <PastContestCard key={c._id} contest={c} />)
+                ) : (
+                    <div className="text-center text-gray-500 bg-gray-50 p-8 rounded-lg">
+                        <p>You haven't participated in any contests yet.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+
+        {/* Past Competitions */}
         <div className="mt-8">
             <h2 className="text-2xl font-bold text-gray-800">Past Competitions</h2>
             <div className="mt-4 space-y-4">
                 {finishedContests.length > 0 ? (
-                    // If there are finished contests, map over them and render a card for each.
                     finishedContests.map(c => <PastContestCard key={c._id} contest={c} />)
                 ) : (
-                    // If the array is empty, show a placeholder message.
                     <div className="text-center text-gray-500 bg-gray-50 p-8 rounded-lg">
-                        <p>You have not completed any contests yet.</p>
-                        <p className="text-sm mt-2">Your past contest results will appear here.</p>
+                        <p>No completed contests found.</p>
                     </div>
                 )}
             </div>
         </div>
       </div>
 
-      {/* Join Contest Modal - remains unchanged */}
+      {/* Join Contest Modal */}
       {isJoinModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={() => setJoinModalOpen(false)}>
           <div className="bg-white rounded-xl p-8 w-full max-w-md" onClick={e => e.stopPropagation()}>

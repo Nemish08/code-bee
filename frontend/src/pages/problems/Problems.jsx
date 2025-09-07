@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+// NEW: Import useAuth to get user token
+import { useAuth } from '@clerk/clerk-react';
 
 // --- ICON IMPORTS ---
 import { FiBookmark, FiChevronDown } from 'react-icons/fi';
-import { FaSort, FaSortUp, FaSortDown, FaBookmark } from 'react-icons/fa';
+import { FaCheckCircle, FaSort, FaSortUp, FaSortDown, FaBookmark } from 'react-icons/fa'; // FaCheckCircle added
 import { CgOptions } from "react-icons/cg";
 import {
   MdKeyboardArrowLeft,
@@ -48,9 +50,7 @@ const DifficultyFilterDropdown = ({ selected, setSelected }) => {
         <div className="absolute z-20 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100">
           <div className="p-2">
             {difficulties.map(d => (
-              <a href="#" key={d} onClick={(e) => { e.preventDefault(); setSelected(d); setIsOpen(false); }} className={`block px-4 py-2 text-sm rounded-md ${selected === d ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}`}>
-                {d}
-              </a>
+              <a href="#" key={d} onClick={(e) => { e.preventDefault(); setSelected(d); setIsOpen(false); }} className={`block px-4 py-2 text-sm rounded-md ${selected === d ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}`}>                {d}              </a>
             ))}
             {selected && <a href="#" onClick={(e) => { e.preventDefault(); setSelected(""); setIsOpen(false); }} className="block px-4 py-2 text-sm text-red-500 hover:bg-gray-50 rounded-md mt-1">Clear</a>}
           </div>
@@ -99,7 +99,7 @@ const TagsFilterDropdown = ({ allTags, selectedTags, setSelectedTags }) => {
 };
 
 
-const ProblemsTable = ({ problems }) => {
+const ProblemsTable = ({ problems, solvedProblemIds }) => { // NEW: solvedProblemIds prop
   const navigate = useNavigate();
   return (
     <div className="overflow-x-auto">
@@ -117,7 +117,13 @@ const ProblemsTable = ({ problems }) => {
           {problems.map(problem => (
             <tr key={problem.uuid} className="bg-white border-b border-gray-200 hover:bg-gray-50 align-middle">
               <td className="p-4 text-center">
-                <div className="w-5 h-5 border-2 border-gray-300 rounded-full mx-auto"></div>
+                {/* --- UPDATED: Conditionally render checkmark --- */}
+                {solvedProblemIds.includes(problem.id) ? (
+                    <FaCheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+                ) : (
+                    <div className="w-5 h-5 border-2 border-gray-300 rounded-full mx-auto"></div>
+                )}
+                {/* --- END OF UPDATE --- */}
               </td>
               <td
                 className="px-6 py-4 font-medium text-gray-800 cursor-pointer hover:text-green-600"
@@ -133,13 +139,10 @@ const ProblemsTable = ({ problems }) => {
                 </div>
               </td>
               <td className="px-6 py-4">
-                 <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${problem.difficulty === 'Easy' ? 'bg-green-100 text-green-700' : problem.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                    {problem.difficulty.toUpperCase()}
-                </span>
+                 <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${problem.difficulty === 'Easy' ? 'bg-green-100 text-green-700' : problem.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>                    {problem.difficulty.toUpperCase()}                </span>
               </td>
               <td className="px-6 py-4">
-                <button className="p-2 rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-600">
-                  <FiBookmark className="w-5 h-5" />
+                <button className="p-2 rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-600">                  <FiBookmark className="w-5 h-5" />
                 </button>
               </td>
             </tr>
@@ -167,11 +170,7 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, rowsPerPage
     <div className="flex items-center gap-4">
       <span className="font-medium">Page {totalPages > 0 ? currentPage : 0} of {totalPages}</span>
       <div className="flex items-center gap-1">
-        <button onClick={() => onPageChange(1)} disabled={currentPage === 1} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdOutlineKeyboardDoubleArrowLeft size={20}/></button>
-        <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdKeyboardArrowLeft size={20}/></button>
-        <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdKeyboardArrowRight size={20}/></button>
-        <button onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages || totalPages === 0} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdOutlineKeyboardDoubleArrowRight size={20}/></button>
-      </div>
+        <button onClick={() => onPageChange(1)} disabled={currentPage === 1} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdOutlineKeyboardDoubleArrowLeft size={20}/></button>        <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdKeyboardArrowLeft size={20}/></button>        <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdKeyboardArrowRight size={20}/></button>        <button onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages || totalPages === 0} className="p-1.5 bg-white border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"><MdOutlineKeyboardDoubleArrowRight size={20}/></button>      </div>
     </div>
   </div>
 );
@@ -184,6 +183,10 @@ function Problems() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // NEW: State for solved problems
+  const [solvedProblemIds, setSolvedProblemIds] = useState([]);
+  const { getToken } = useAuth();
+
   // Updated state for filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
@@ -193,14 +196,27 @@ function Problems() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    const fetchProblems = async () => {
+    const fetchProblemsAndStatus = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems`);
-        if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
-        const data = await res.json();
-        setProblems(data);
-        setAllTags([...new Set(data.flatMap(p => p.tags))].sort());
+        // Fetch all problems
+        const problemsRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems`);
+        if (!problemsRes.ok) throw new Error(`Failed to fetch problems: ${problemsRes.statusText}`);
+        const problemsData = await problemsRes.json();
+        setProblems(problemsData);
+        setAllTags([...new Set(problemsData.flatMap(p => p.tags))].sort());
+
+        // NEW: Fetch solved problem status
+        const token = await getToken();
+        const solvedRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/solved-problems`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (solvedRes.ok) {
+            const solvedData = await solvedRes.json();
+            setSolvedProblemIds(solvedData.solvedProblemIds || []);
+        }
+        // END NEW
+
         setError(null);
       } catch (err) {
         setError(err.message);
@@ -208,8 +224,8 @@ function Problems() {
         setLoading(false);
       }
     };
-    fetchProblems();
-  }, []);
+    fetchProblemsAndStatus();
+  }, [getToken]);
 
   // Updated memoized filtering logic for multi-tag selection
   const filteredProblems = useMemo(() => {
@@ -234,8 +250,7 @@ function Problems() {
         {/* Header inside the main component */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800">Problems</h2>
-            <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                + Create Playlist
+            <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-transform transform hover:scale-105">                + Create Playlist
             </button>
         </div>
         
@@ -256,7 +271,7 @@ function Problems() {
         </div>
         
         {/* Table and Pagination */}
-        <ProblemsTable problems={paginatedProblems} />
+        <ProblemsTable problems={paginatedProblems} solvedProblemIds={solvedProblemIds} />
         {paginatedProblems.length === 0 && (
           <div className="text-center py-16 text-gray-500">No problems match your criteria.</div>
         )}

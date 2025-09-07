@@ -35,7 +35,7 @@ const ContestResultsPage = () => {
             const token = await getToken();
             await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}/analyze-plagiarism`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }          });
+                headers: { 'Authorization': `Bearer ${token}` } });
             // Re-fetch data to get the report
             await fetchResults();
         } catch (error) {
@@ -54,9 +54,9 @@ const ContestResultsPage = () => {
 
     return (
         <div className="h-full w-[90%] m-auto mt-20 sm:p-6 lg:p-8 font-sans">
-            <div className="max-w-screen-lg mx-auto">n                <Link to="/contest" className="text-sm text-purple-600 hover:underline mb-4 inline-block">u2190 Back to Competitions</Link>
+            <div className="max-w-screen-lg mx-auto"> <Link to="/contest" className="text-sm text-purple-600 hover:underline mb-4 inline-block">Back to Competitions</Link>
                 <div className="bg-white rounded-xl shadow-sm border p-8">
-                    <div className="text-center">n                        <FaTrophy className="text-7xl text-yellow-400 mx-auto" />
+                    <div className="text-center"> <FaTrophy className="text-7xl text-yellow-400 mx-auto" />
                         <h1 className="text-4xl font-bold text-gray-900 mt-4">{contest.name}</h1>
                         <p className="text-gray-500">Results</p>
                     </div>
@@ -64,7 +64,7 @@ const ContestResultsPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
                         <div>
                             <h3 className="font-bold text-lg">Final Leaderboard</h3>
-                            <ul className="mt-4 space-y-3 bg-gray-50 p-4 rounded-lg">                             {sortedLeaderboard.map((p, index) => (                        <li key={p.userId} className="flex items-center justify-between text-gray-700">                                       <span className="font-semibold">{index + 1}. {p.displayName} {p.userId === contest.hostId && <FaCrown className="inline text-yellow-500" />}</span>
+                            <ul className="mt-4 space-y-3 bg-gray-50 p-4 rounded-lg">                             {sortedLeaderboard.map((p, index) => (<li key={p.userId} className="flex items-center justify-between text-gray-700">                                       <span className="font-semibold">{index + 1}. {p.displayName} {p.userId === contest.hostId && <FaCrown className="inline text-yellow-500" />}</span>
                                         <span>{p.score} pts</span>
                                     </li>
                                 ))}
@@ -72,13 +72,13 @@ const ContestResultsPage = () => {
                         </div>
                         <div>
                             <h3 className="font-bold text-lg">Problems in this Contest</h3>
-                            <ul className="mt-4 space-y-2 bg-gray-50 p-4 rounded-lg">n                                {contest.problems.map(prob => <li key={prob._id}>{prob.title}</li>)}
+                            <ul className="mt-4 space-y-2 bg-gray-50 p-4 rounded-lg">{contest.problems.map(prob => <li key={prob._id}>{prob.title}</li>)}
                             </ul>
                         </div>
                     </div>
 
                     {/* --- Plagiarism Report Section --- */}
-                    <div className="mt-12 border-t pt-8">
+                    {/* <div className="mt-12 border-t pt-8">
                         <div className="flex justify-between items-center">
                             <h3 className="font-bold text-lg flex items-center gap-2"><FaShieldAlt className="text-blue-500"/> AI Plagiarism Report</h3>
                             {isHost && contest.plagiarismReport?.status !== 'completed' && (
@@ -113,7 +113,7 @@ const ContestResultsPage = () => {
                                 </p>
                             )}
                         </div>
-                    </div>
+                    </div> */}
 
                 </div>
             </div>

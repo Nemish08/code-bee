@@ -45,7 +45,7 @@ const getEditableRanges = (code) => {
   return ranges;
 };
 
-const CodeEditorSection = ({ problem, mycode, setTestCode }) => {
+const CodeEditorSection = ({ problem, mycode, setTestCode, onContestSubmit }) => {
 
 
   const { theme, language, fontSize, setFontSize } = useSettings();
@@ -167,12 +167,24 @@ const CodeEditorSection = ({ problem, mycode, setTestCode }) => {
         code,
         language,
         isAccepted,
-        result.avgMemory, // Use result directly
-        result.avgRuntime, // Use result directly
+        result.avgMemory, 
+        result.avgRuntime, 
         contestId
       );
 
       if (isAccepted) {
+        /*
+        // OLD CODE
+        if (contestId && onContestSubmit) {
+            onContestSubmit();
+        }
+        */
+        
+        // NEW CODE: Pass the ID of the solved problem to the callback
+        if (contestId && onContestSubmit) {
+            onContestSubmit(problem.id);
+        }
+
         localStorage.removeItem(`code-${problem.id}-${language}`);
       }
 
@@ -233,7 +245,6 @@ const CodeEditorSection = ({ problem, mycode, setTestCode }) => {
                 if (handlePasteEvent) {
                   handlePasteEvent(pastedText);
                 }
-                // Note: The default paste action will proceed.
               }}
               name="CODE_EDITOR_INSTANCE"
               value={code}

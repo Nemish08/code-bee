@@ -42,16 +42,16 @@ const ContestSidebar = ({ contest, problems, isOpen }) => {
     }, [contest?.contestId, getToken, user?.id]);
 
     return (
-        <div className="bg-dark-panel h-full rounded-lg flex flex-col p-4 text-white overflow-hidden">
+        <div className="bg-dark-panel h-full rounded-lg flex flex-col p-4 text-black overflow-hidden">
             {/* FIX: Render content only when the sidebar is open */}
             {isOpen && (
                 <>
                     {/* FIX: Added the contest title */}
-                    <h2 className="text-xl font-bold mb-4 border-b border-dark-border pb-2 flex items-center gap-2 truncate">
+                    <h2 className=" text-black text-xl font-bold mb-4 border-b border-dark-border pb-2 flex items-center gap-2 truncate">
                         <FaClipboardList /> {contest?.name}
                     </h2>
 
-                    <h3 className="font-semibold mb-2">Contest Problems</h3>
+                    <h3 className="font-semibold mb-2 text-black">Contest Problems</h3>
                     <ul className="space-y-2 mb-6">
                         {problems.map(p => (
                             <Link to={`/problems/${p.id}?contestId=${contest.contestId}`} key={p._id}>
@@ -64,7 +64,7 @@ const ContestSidebar = ({ contest, problems, isOpen }) => {
                         ))}
                     </ul>
 
-                    <h3 className="text-lg font-bold mb-4 border-b border-dark-border pb-2 flex items-center gap-2"><FaTrophy /> Leaderboard</h3>
+                    <h3 className="text-black text-lg font-bold mb-4 border-b border-dark-border pb-2 flex items-center gap-2"><FaTrophy /> Leaderboard</h3>
                     <ul className="space-y-3 overflow-y-auto flex-grow">
                         {leaderboard.map((p, index) => (
                             <li key={p.userId} className={`flex justify-between p-2 rounded-lg ${p.userId === user.id ? 'bg-yellow-500/20' : ''}`}>
