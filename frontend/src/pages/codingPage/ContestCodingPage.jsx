@@ -36,8 +36,7 @@ const ContestSidebar = ({ contest, problems, currentProblemId, isOpen, onToggle,
     }, [contest?.contestId, getToken]);
 
     return (
-        <div className={`text-black bg-dark-panel h-full rounded-lg flex flex-col p-4 overflow-hidden transition-all duration-300 ${isOpen ? 'w-80' : 'w-0 p-0'}`}>
-            {isOpen && (
+        <div className={`text-black bg-dark-panel h-full rounded-lg flex flex-col p-4 overflow-hidden transition-all duration-300 ${isOpen ? 'w-80' : 'w-0 p-0'}`}>\n            {isOpen && (
                 <>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold flex items-center gap-2">
@@ -142,9 +141,10 @@ const ContestCodingPage = () => {
 
     const [error, setError] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [timeLeft, setTimeLeft] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // NEW: Handles navigation after a successful submission
+    // Handles navigation after a successful submission
     const handleSuccessfulSubmission = useCallback(async (solvedProblemId) => {
         const urlParams = new URLSearchParams(window.location.search);
         const contestId = urlParams.get('contestId');
@@ -206,8 +206,22 @@ const ContestCodingPage = () => {
                 const contestRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                if (!contestRes.ok) throw new Error('Contest not found');
+                if (!contestRes.ok) throw new Error('Contest not found or you do not have access.');
                 const contestData = await contestRes.json();
+
+                // NEW: Check for finished status
+                if (contestData.status === 'finished') {
+                    navigate(`/contest/results/${contestId}`);
+                    return;
+                }
+                
+                // NEW: Check if user is disqualified on the server
+                const currentUser = contestData.participants.find(p => p.userId === user.id);
+                if (currentUser && currentUser.isDisqualified) {
+                    navigate(`/contest/results/${contestId}`);
+                    return;
+                }
+
                 setContest(contestData);
                 setContestProblems(contestData.problems || []);
 
@@ -216,8 +230,6 @@ const ContestCodingPage = () => {
                     const remaining = Math.max(0, endTime - Date.now());
                     setTimeLeft(remaining);
                 }
-
-                const currentUser = contestData.participants.find(p => p.userId === user.id);
                 if (currentUser) {
                     setUserProgress(currentUser.problemsSolved.map(ps => ps.problemId.toString()));
                 }
@@ -228,7 +240,7 @@ const ContestCodingPage = () => {
             }
         };
         loadContestData();
-    }, [getToken, user.id]);
+    }, [getToken, user.id, navigate]);
 
     // Effect to load the specific problem data whenever the URL's problemId changes
     useEffect(() => {
@@ -251,7 +263,7 @@ const ContestCodingPage = () => {
 
     // Timer countdown effect
     useEffect(() => {
-        if (timeLeft <= 0) return;
+        if (timeLeft === null || timeLeft <= 0) return;
         const timer = setInterval(() => {
             setTimeLeft(prev => Math.max(0, prev - 1000));
         }, 1000);
@@ -259,6 +271,7 @@ const ContestCodingPage = () => {
     }, [timeLeft]);
 
     const formatTime = (milliseconds) => {
+        if (milliseconds === null) return "00:00:00";
         const totalSeconds = Math.floor(milliseconds / 1000);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -266,8 +279,16 @@ const ContestCodingPage = () => {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    const handleSubmitContest = async () => {
-        if (window.confirm("Are you sure you want to submit the entire contest? This action cannot be undone.")) {
+    const handleSubmitContest = useCallback(async (isTimeUp = false) => {
+        if (isSubmitting || !contest) return;
+    
+        const proceed = isTimeUp || window.confirm("Are you sure you want to submit the entire contest? This action cannot be undone.");
+    
+        if (proceed) {
+            setIsSubmitting(true);
+            if (isTimeUp) {
+                alert("Time's up! Your contest is being submitted.");
+            }
             try {
                 const token = await getToken();
                 const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contests/${contest.contestId}/submit`, {
@@ -275,6 +296,7 @@ const ContestCodingPage = () => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
+                    sessionStorage.removeItem(`disqualified_${contest.contestId}`);
                     navigate(`/contest/results/${contest.contestId}`);
                 } else {
                     alert('Failed to submit contest');
@@ -282,9 +304,18 @@ const ContestCodingPage = () => {
             } catch (error) {
                 console.error('Error submitting contest:', error);
                 alert('Error submitting contest');
+            } finally {
+                setIsSubmitting(false);
             }
         }
-    };
+    }, [contest, getToken, isSubmitting, navigate]);
+    
+    // Effect to handle automatic submission when timer ends
+    useEffect(() => {
+        if (timeLeft === 0 && contest?.status === 'live') {
+            handleSubmitContest(true);
+        }
+    }, [timeLeft, contest, handleSubmitContest]);
     
     if (isContestLoading) return <div className="bg-dark-bg text-white h-screen flex items-center justify-center">Loading Contest...</div>;
     if (error) return <div className="bg-dark-bg text-white h-screen flex items-center justify-center">Error: {error}</div>;
@@ -303,6 +334,7 @@ const ContestCodingPage = () => {
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
                 onContestSubmit={handleSuccessfulSubmission}
                 isProblemLoading={isProblemLoading}
+                isSubmitting={isSubmitting}
             />
         </ProctoringProvider>
     );
@@ -318,7 +350,8 @@ const ContestCodingView = ({
     isSidebarOpen,
     onToggleSidebar,
     onContestSubmit,
-    isProblemLoading
+    isProblemLoading,
+    isSubmitting
 }) => {
     const {
         isProctoringActive, startProctoring, isDisqualified,
@@ -387,10 +420,11 @@ const ContestCodingView = ({
                 
                 <div className="flex items-center gap-4">
                     <button 
-                        onClick={onSubmitContest} 
-                        className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+                        onClick={() => onSubmitContest(false)} 
+                        disabled={isSubmitting}
+                        className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors disabled:bg-red-400 disabled:cursor-not-allowed"
                     >
-                        Submit Contest
+                        {isSubmitting ? "Submitting..." : "Submit Contest"}
                     </button>
                 </div>
             </div>

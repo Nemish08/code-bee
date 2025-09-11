@@ -22,8 +22,20 @@ export const ProctoringProvider = ({ children, problemId, contestId }) => {
   const [isProctoringActive, setIsProctoringActive] = useState(false);
   const [infractionCount, setInfractionCount] = useState(0);
   const [warningMessage, setWarningMessage] = useState('');
-  const [isDisqualified, setIsDisqualified] = useState(false);
+  
+  // Initialize isDisqualified from sessionStorage to handle reloads
+  const [isDisqualified, setIsDisqualified] = useState(
+    () => contestId ? sessionStorage.getItem(`disqualified_${contestId}`) === 'true' : false
+  );
   const { user } = useUser();
+  
+  // Effect to persist disqualification in sessionStorage
+  useEffect(() => {
+    if (isDisqualified && contestId) {
+      sessionStorage.setItem(`disqualified_${contestId}`, 'true');
+    }
+  }, [isDisqualified, contestId]);
+
 
   // 6. GLOBAL EVENT BLOCKER (THE CORE OF PREVENTION)
   useEffect(() => {
@@ -107,13 +119,13 @@ export const ProctoringProvider = ({ children, problemId, contestId }) => {
 
     const newCount = infractionCount + 1;
     setInfractionCount(newCount);
-    logInfractionToServer(type);
-
+    
     const infractionText = type === 'tab_switch' ? 'switching tabs' : 'exiting fullscreen';
 
     if (newCount >= MAX_INFRACTIONS) {
       setWarningMessage(`Disqualified for ${infractionText}.`);
-      setIsDisqualified(true);
+      setIsDisqualified(true); // UI update + triggers useEffect to set sessionStorage
+      logInfractionToServer(type); // Server update
     } else {
       const remaining = MAX_INFRACTIONS - newCount;
       setWarningMessage(`Warning: Infraction detected for ${infractionText}. You have ${remaining} warning(s) left.`);
